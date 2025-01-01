@@ -1,95 +1,200 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+import { useEffect, useState } from "react";
+import {
+  Container,
+  Grid,
+  Card,
+  CardMedia,
+  CardContent,
+  Typography,
+  Button,
+  CardActions,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  TextField,
+  Box,
+  Paper,
+} from "@mui/material";
+import { useCart } from "@/context/CartContext";
+import Carousel from "@/components/Carousel";
+import Link from "next/link";
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.js</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [sortBy, setSortBy] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [visibleProducts, setVisibleProducts] = useState(8);
+  const { addToCart } = useCart();
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/products`)
+      .then((res) => res.json())
+      .then((data) => {
+        setProducts(data);
+        setFilteredProducts(data);
+      });
+  }, []);
+
+  useEffect(() => {
+    let result = [...products];
+
+    if (searchQuery) {
+      result = result.filter((product) =>
+        product.title.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    if (sortBy === "price-asc") {
+      result.sort((a, b) => a.price - b.price);
+    } else if (sortBy === "price-desc") {
+      result.sort((a, b) => b.price - a.price);
+    } else if (sortBy === "name") {
+      result.sort((a, b) => a.title.localeCompare(b.title));
+    }
+
+    setFilteredProducts(result);
+  }, [products, sortBy, searchQuery]);
+
+  const handleShowMore = () => {
+    setVisibleProducts((prev) => prev + 4);
+  };
+
+  return (
+    <Container maxWidth="xl" sx={{ py: 4 }}>
+      <Carousel />
+
+      <Paper
+        sx={{
+          p: 3,
+          mb: 4,
+          borderRadius: 4,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            gap: 2,
+            flexWrap: "wrap",
+          }}
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+          <TextField
+            label="Search Products"
+            variant="outlined"
+            size="small"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            sx={{
+              flexGrow: 1,
+              minWidth: "100px",
+              "& .MuiOutlinedInput-root": {
+                borderRadius: 2,
+              },
+            }}
           />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          <FormControl size="small" sx={{ minWidth: 200 }}>
+            <InputLabel>Sort By</InputLabel>
+            <Select
+              value={sortBy}
+              label="Sort By"
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <MenuItem value="">None</MenuItem>
+              <MenuItem value="price-asc">Price: Low to High</MenuItem>
+              <MenuItem value="price-desc">Price: High to Low</MenuItem>
+              <MenuItem value="name">Name</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+      </Paper>
+
+      <Grid container spacing={4}>
+        {filteredProducts.slice(0, visibleProducts).map((product) => (
+          <Grid item key={product.id} xs={12} sm={6} md={4} lg={3}>
+            <Card sx={{ borderRadius: 2, boxShadow: 2, overflow: "hidden" }}>
+              <Box
+                sx={{
+                  position: "relative",
+                  pt: "100%",
+                  bgcolor: "white",
+                }}
+              >
+                <CardMedia
+                  component="img"
+                  sx={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
+                  }}
+                  image={product.image}
+                  alt={product.title}
+                />
+              </Box>
+              <CardContent>
+                <Typography
+                  gutterBottom
+                  variant="h6"
+                  component="h3"
+                  noWrap
+                  sx={{ fontWeight: 450, fontSize: "1rem" }}
+                >
+                  {product.title}
+                </Typography>
+                <Typography
+                  variant="h6"
+                  color="secondary.main"
+                  sx={{ fontWeight: 500, fontSize: "0.9rem" }}
+                >
+                  ${product.price}
+                </Typography>
+              </CardContent>
+              <CardActions
+                sx={{ p: 1, pt: 0, justifyContent: "space-between" }}
+              >
+                <Link
+                  href={`/products/${product.id}`}
+                  style={{ textDecoration: "none" }}
+                >
+                  <Button
+                    size="small"
+                    sx={{
+                      color: "primary.main",
+                      "&:hover": { bgcolor: "primary.main", color: "white" },
+                    }}
+                  >
+                    View Details
+                  </Button>
+                </Link>
+                <Button
+                  size="small"
+                  variant="contained"
+                  onClick={() => addToCart(product)}
+                  sx={{
+                    bgcolor: "secondary.main",
+                    "&:hover": { bgcolor: "secondary.dark" },
+                  }}
+                >
+                  Add to Cart
+                </Button>
+              </CardActions>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+
+      {visibleProducts < filteredProducts.length && (
+        <Box sx={{ textAlign: "center", mt: 4 }}>
+          <Button variant="contained" onClick={handleShowMore}>
+            Show More
+          </Button>
+        </Box>
+      )}
+    </Container>
   );
 }
