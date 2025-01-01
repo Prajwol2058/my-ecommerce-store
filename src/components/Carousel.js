@@ -1,15 +1,20 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Paper, Box } from "@mui/material";
+import { Paper, Box, CircularProgress } from "@mui/material";
 
 export default function Carousel() {
   const [activeStep, setActiveStep] = useState(0);
   const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     fetch("https://fakestoreapi.com/products")
       .then((res) => res.json())
-      .then((data) => setProducts(data));
+      .then((data) => {
+        setProducts(data);
+        setIsLoading(false);
+      })
+      .catch(() => setIsLoading(false));
   }, []);
 
   useEffect(() => {
@@ -21,6 +26,22 @@ export default function Carousel() {
 
     return () => clearInterval(timer);
   }, [products.length]);
+
+  if (isLoading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          width: "100%",
+          height: 300,
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   if (products.length === 0) return null;
 

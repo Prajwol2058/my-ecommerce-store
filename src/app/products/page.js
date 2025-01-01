@@ -18,6 +18,7 @@ import {
   TextField,
   Chip,
   CircularProgress,
+  Skeleton,
 } from "@mui/material";
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
@@ -76,16 +77,36 @@ function ProductsContent() {
 
   if (loading) {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "50vh",
-        }}
-      >
-        <CircularProgress />
-      </Box>
+      <>
+        <Typography variant="h4" sx={{ mb: 4, fontWeight: 700 }}>
+          {categoryParam
+            ? categoryParam.charAt(0).toUpperCase() + categoryParam.slice(1)
+            : "All Products"}
+        </Typography>
+        <Grid container spacing={3}>
+          {Array.from(new Array(8)).map((_, index) => (
+            <Grid item key={index} xs={12} sm={6} md={4} lg={3}>
+              <Card
+                sx={{
+                  height: "100%",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <Skeleton variant="rectangular" height={150} />
+                <CardContent sx={{ flexGrow: 1 }}>
+                  <Skeleton variant="text" width="80%" />
+                  <Skeleton variant="text" width="60%" />
+                </CardContent>
+                <CardActions>
+                  <Skeleton variant="text" width="30%" />
+                  <Skeleton variant="text" width="30%" />
+                </CardActions>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
+      </>
     );
   }
 
