@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   Container,
@@ -22,7 +22,7 @@ import {
 import { useCart } from "@/context/CartContext";
 import Link from "next/link";
 
-export default function ProductsPage() {
+function ProductsContent() {
   const searchParams = useSearchParams();
   const categoryParam = searchParams.get("category");
 
@@ -90,7 +90,7 @@ export default function ProductsPage() {
   }
 
   return (
-    <Container maxWidth="xl" sx={{ py: 4 }}>
+    <>
       <Typography variant="h4" sx={{ mb: 4, fontWeight: 700 }}>
         {categoryParam
           ? categoryParam.charAt(0).toUpperCase() + categoryParam.slice(1)
@@ -173,7 +173,6 @@ export default function ProductsPage() {
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
-                    mb: 1,
                   }}
                 >
                   <Typography
@@ -218,6 +217,27 @@ export default function ProductsPage() {
           </Grid>
         ))}
       </Grid>
-    </Container>
+    </>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense
+      fallback={
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "50vh",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      }
+    >
+      <ProductsContent />
+    </Suspense>
   );
 }

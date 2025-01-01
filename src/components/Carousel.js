@@ -26,7 +26,13 @@ export default function Carousel() {
 
   return (
     <Box
-      sx={{ position: "relative", width: "100%", height: 300, mb: 2, mt: 7 }}
+      sx={{
+        position: "relative",
+        width: "100%",
+        height: 300,
+        mb: { xs: 5, sm: 2 },
+        mt: { xs: 15, sm: 8 },
+      }}
     >
       {products.map((product, index) => (
         <Paper

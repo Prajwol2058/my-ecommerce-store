@@ -21,7 +21,7 @@ export default function ProductDetails() {
   const { addToCart } = useCart();
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/products/${id}`)
+    fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/products/${params.id}`)
       .then((res) => res.json())
       .then((data) => {
         setProduct(data);

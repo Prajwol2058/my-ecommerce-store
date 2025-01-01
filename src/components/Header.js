@@ -179,7 +179,10 @@ export default function Header() {
       >
         <Box
           sx={{
-            width: 380,
+            width: {
+              xs: "90%",
+              md: 370,
+            },
             p: 3,
             height: "100%",
             display: "flex",

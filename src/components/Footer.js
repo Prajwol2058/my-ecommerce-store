@@ -10,7 +10,7 @@ export default function Footer() {
       component="footer"
       sx={{
         py: 2,
-        mt: "auto",
+        mt: 2,
         backgroundColor: "#2d2d3e",
         textAlign: "center",
       }}
